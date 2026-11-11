@@ -2,7 +2,7 @@
   'use strict';
 
   var CFG = window.FLUJO_CONFIG || {};
-  var WA = CFG.whatsapp || '18299067718';
+  var WA = CFG.whatsapp || '18492597719';
   var params = new URLSearchParams(location.search);
   // Origen del visitante: ?src= manda; si no, se detecta el navegador interno
   // de la app (Instagram, Facebook, TikTok) o la página de donde vino.
@@ -380,7 +380,7 @@
       ]; },
     },
     otro: {
-      text: 'Para darte una respuesta exacta, lo mejor es hablar con Antonio directamente o agendar una cita gratis.',
+      text: 'Para darte una respuesta exacta, lo mejor es escribirnos por WhatsApp o agendar una cita gratis.',
       chips: function () { return [
         { label: 'Escribir por WhatsApp', href: waLink('Hola, vengo del link de Instagram.') },
         { label: 'Agendar cita gratis', action: function () { goAgenda('consulta'); } },

@@ -245,7 +245,7 @@ h2 { font-size: 26px; line-height: 1.15; font-weight: 700; }
 }
 .fab:hover { transform: translateY(-2px); }
 .fab-chat { background: var(--navy); color: var(--cyan); }
-.fab-wa { background: #1E9E57; color: #FFFFFF; }
+.fab-wa { background: #25D366; color: #FFFFFF; }
 .fab-wa:hover { color: #FFFFFF; }
 
 .chat-backdrop { position: fixed; inset: 0; background: rgba(15, 27, 40, 0.45); z-index: 40; }

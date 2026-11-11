@@ -6,7 +6,7 @@ window.FLUJO_CONFIG = {
   availabilityUrl: 'https://gestor.flujoxai.com/api/public/availability?days=21',
   // Webhook de chat de n8n (Chat Trigger). Vacío = respuestas guiadas + WhatsApp.
   chatWebhook: '',
-  whatsapp: '18299067718',
+  whatsapp: '18492597719',
   // Santo Domingo no usa horario de verano: siempre UTC-4.
   utcOffset: '-04:00',
   utcOffsetMinutes: -240,
