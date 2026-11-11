@@ -405,9 +405,15 @@
     return 'otro';
   }
 
+  var aiBusy = false;
   function askAI(text) {
+    if (aiBusy) return Promise.resolve();
+    aiBusy = true;
     var t = typing();
+    var ctrl = window.AbortController ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 30000);
     return fetch(CFG.chatWebhook, {
+      signal: ctrl ? ctrl.signal : undefined,
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'sendMessage', sessionId: sessionId, chatInput: text, source: SOURCE }),
@@ -416,12 +422,23 @@
       .then(function (data) {
         t.remove();
         var out = (Array.isArray(data) ? data[0] : data) || {};
-        addMsg(out.output || out.text || out.message || 'Perdona, no te entendí. ¿Me lo dices de otra forma?', 'bot');
+        var reply = String(out.output || out.text || out.message || '');
+        if (!reply.trim()) throw new Error('vacío');
+        // Marcas que pone la IA para mostrar botones.
+        var wantsAgenda = reply.indexOf('[[AGENDAR]]') >= 0;
+        var wantsWa = reply.indexOf('[[WHATSAPP]]') >= 0;
+        reply = reply.replace(/\[\[(AGENDAR|WHATSAPP)\]\]/g, '').trim();
+        addMsg(reply, 'bot');
+        var chips = [];
+        if (wantsAgenda) chips.push({ label: 'Agendar cita gratis', action: function () { goAgenda('consulta'); } });
+        if (wantsWa) chips.push({ label: 'Escribir por WhatsApp', href: waLink('Hola, vengo del chat de link.flujoxai.com.') });
+        if (chips.length) addChips(chips);
       })
       .catch(function () {
         t.remove();
         guidedReply(classify(text));
-      });
+      })
+      .then(function () { aiBusy = false; clearTimeout(timer); });
   }
 
   function openChat() {
@@ -433,10 +450,13 @@
       started = true;
       addMsg('¡Hola! Soy el asistente de FlujoxAI. Te ayudo con chatbots, agentes de IA, automatizaciones y nuestras formaciones.', 'bot');
       addMsg('¿Qué te gustaría hacer?', 'bot');
+      function starter(text, key) {
+        return function () { addMsg(text, 'me'); if (CFG.chatWebhook) askAI(text); else guidedReply(key); };
+      }
       addChips([
-        { label: 'Quiero un chatbot', action: function () { addMsg('Quiero un chatbot', 'me'); guidedReply('chatbot'); } },
-        { label: 'Info de la formación', action: function () { addMsg('Info de la formación', 'me'); guidedReply('formacion'); } },
-        { label: '¿Cuánto cuesta?', action: function () { addMsg('¿Cuánto cuesta?', 'me'); guidedReply('precio'); } },
+        { label: 'Quiero un chatbot', action: starter('Quiero un chatbot para mi negocio', 'chatbot') },
+        { label: 'Info de la formación', action: starter('Quiero información de la formación 1 a 1', 'formacion') },
+        { label: '¿Cuánto cuesta?', action: starter('¿Cuánto cuesta?', 'precio') },
       ]);
     }
     setTimeout(function () { $('#chat-text').focus(); }, 50);
