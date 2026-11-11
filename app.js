@@ -54,15 +54,34 @@
   var TRAINING = 'Formación 1 a 1';
 
   var servicesBox = $('#services');
+  // Servicios en acordeón: solo el nombre; al tocarlo se abre la descripción.
   SERVICES.forEach(function (s, i) {
-    servicesBox.appendChild(el('article', { class: 'service' }, [
-      el('div', { class: 'service-num', 'aria-hidden': 'true', text: String(i + 1).padStart(2, '0') }),
-      el('div', {}, [
-        el('h3', { text: s.title }),
+    var panelId = 'service-panel-' + i;
+    var card = el('article', { class: 'service' });
+    var head = el('button', {
+      type: 'button', class: 'service-head', 'aria-expanded': 'false', 'aria-controls': panelId,
+      onclick: function () {
+        var open = card.classList.contains('open');
+        $all('.service.open').forEach(function (c) {
+          c.classList.remove('open');
+          c.querySelector('.service-head').setAttribute('aria-expanded', 'false');
+        });
+        if (!open) { card.classList.add('open'); head.setAttribute('aria-expanded', 'true'); }
+      },
+    }, [
+      el('span', { class: 'service-num', 'aria-hidden': 'true', text: String(i + 1).padStart(2, '0') }),
+      el('h3', { text: s.title }),
+      el('span', { class: 'chev', 'aria-hidden': 'true' }),
+    ]);
+    var panel = el('div', { class: 'service-panel', id: panelId, role: 'region' }, [
+      el('div', { class: 'service-panel-inner' }, [
         el('p', { text: s.desc }),
-        el('button', { type: 'button', text: 'Me interesa →', 'aria-label': 'Me interesa: ' + s.title, onclick: function () { pickService('consulta', s.option); } }),
+        el('button', { type: 'button', class: 'service-cta', text: 'Me interesa →', 'aria-label': 'Me interesa: ' + s.title, onclick: function () { pickService('consulta', s.option); } }),
       ]),
-    ]));
+    ]);
+    card.appendChild(head);
+    card.appendChild(panel);
+    servicesBox.appendChild(card);
   });
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
