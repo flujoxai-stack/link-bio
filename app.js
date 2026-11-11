@@ -4,7 +4,24 @@
   var CFG = window.FLUJO_CONFIG || {};
   var WA = CFG.whatsapp || '18299067718';
   var params = new URLSearchParams(location.search);
-  var SOURCE = (params.get('src') || params.get('utm_source') || 'link-bio').slice(0, 40);
+  // Origen del visitante: ?src= manda; si no, se detecta el navegador interno
+  // de la app (Instagram, Facebook, TikTok) o la página de donde vino.
+  function detectSource() {
+    var explicit = params.get('src') || params.get('utm_source');
+    if (explicit) return explicit;
+    var ua = navigator.userAgent || '';
+    if (/Instagram/i.test(ua)) return 'instagram';
+    if (/FBAN|FBAV|FB_IAB/i.test(ua)) return 'facebook';
+    if (/musical_ly|TikTok|BytedanceWebview/i.test(ua)) return 'tiktok';
+    var ref = document.referrer || '';
+    if (/instagram\./i.test(ref)) return 'instagram';
+    if (/facebook\.|fb\./i.test(ref)) return 'facebook';
+    if (/tiktok\./i.test(ref)) return 'tiktok';
+    if (/youtube\.|youtu\.be/i.test(ref)) return 'youtube';
+    if (/linkedin\./i.test(ref)) return 'linkedin';
+    return 'link-bio';
+  }
+  var SOURCE = detectSource().slice(0, 40);
 
   function $(sel, root) { return (root || document).querySelector(sel); }
   function $all(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
